@@ -177,6 +177,7 @@ if defined? CanCan::ModelAdapters::ActiveRecordAdapter
       @ability.can :read, Comment, article: { category: { visible: true } }
       comment1 = Comment.create!(article: Article.create!(category: Category.create!(visible: true)))
       Comment.create!(article: Article.create!(category: Category.create!(visible: false)))
+      puts Comment.accessible_by(@ability).to_sql
       expect(Comment.accessible_by(@ability)).to eq([comment1])
     end
 
