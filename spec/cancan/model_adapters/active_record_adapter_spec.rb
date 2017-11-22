@@ -80,18 +80,10 @@ if defined? CanCan::ModelAdapters::ActiveRecordAdapter
     end
 
     it 'is for only active record classes' do
-      if ActiveRecord.respond_to?(:version) &&
-         ActiveRecord.version > Gem::Version.new('4')
         expect(CanCan::ModelAdapters::ActiveRecord4Adapter).to_not be_for_class(Object)
         expect(CanCan::ModelAdapters::ActiveRecord4Adapter).to be_for_class(Article)
         expect(CanCan::ModelAdapters::AbstractAdapter.adapter_class(Article))
           .to eq(CanCan::ModelAdapters::ActiveRecord4Adapter)
-      else
-        expect(CanCan::ModelAdapters::ActiveRecord3Adapter).to_not be_for_class(Object)
-        expect(CanCan::ModelAdapters::ActiveRecord3Adapter).to be_for_class(Article)
-        expect(CanCan::ModelAdapters::AbstractAdapter.adapter_class(Article))
-          .to eq(CanCan::ModelAdapters::ActiveRecord3Adapter)
-      end
     end
 
     it 'finds record' do
@@ -177,6 +169,15 @@ if defined? CanCan::ModelAdapters::ActiveRecordAdapter
       @ability.can :read, Comment, article: { category: { visible: true } }
       comment1 = Comment.create!(article: Article.create!(category: Category.create!(visible: true)))
       Comment.create!(article: Article.create!(category: Category.create!(visible: false)))
+
+      expect(Comment.count).to eq 2
+      expect(Comment.joins(article: :category).count).to eq 2
+      puts Category.where(visible: true).count
+      puts Article.joins(:category).where(categories: {visible: true}).count
+      comment_joinsarticlecategory_where = Comment.joins(article: :category).where(categories: { visible: true })
+      puts comment_joinsarticlecategory_where.count
+      puts comment_joinsarticlecategory_where.to_sql
+      expect(comment_joinsarticlecategory_where).to eq([comment1])
       puts Comment.accessible_by(@ability).to_sql
       expect(Comment.accessible_by(@ability)).to eq([comment1])
     end

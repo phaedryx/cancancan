@@ -29,8 +29,6 @@ notifications:
   email:
     recipients:
       - alessandro.rodi@renuo.ch
-      - josua.schmid@renuo.ch
-      - zora.fuchs@renuo.ch
     on_success: change
     on_failure: change
 script:
